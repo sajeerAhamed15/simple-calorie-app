@@ -24,6 +24,23 @@ export async function userLogin(userName: string) {
   }
 }
 
+export async function adminLogin(userName: string) {
+  const response = await fetch(`${baseUrl}/admin/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: userName
+    }),
+  });
+
+  if (response.ok) {
+    const responseJson = await response.json();
+    return responseJson
+  }
+}
+
 export async function getEntries(date1: string, date2: string) {
   const userId = loggedInUser().id;
 

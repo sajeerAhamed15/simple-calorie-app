@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Login } from "../Pages/Login";
 import { Home } from "../Pages/Home";
 import { NotFound } from "../Pages/NotFound";
+import { AdminLogin } from "../Pages/AdminLogin";
 
 export function MainRoute() {
   return (
@@ -10,8 +11,8 @@ export function MainRoute() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/admin/home" element={<AdminHome />} />
-        <Route path="/admin/login" element={<AdminLogin />} /> */}
+        {/* <Route path="/admin/home" element={<AdminHome />} /> */}
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

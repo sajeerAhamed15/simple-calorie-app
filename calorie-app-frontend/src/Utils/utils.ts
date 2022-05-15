@@ -18,3 +18,7 @@ export function getCellClassRules() {
 export function loggedInUser() {
   return JSON.parse(localStorage.getItem("user") as any)
 }
+
+export function loggedInAdmin() {
+  return JSON.parse(localStorage.getItem("admin") as any)
+}
