@@ -42,5 +42,10 @@ public class UserController {
         return service.deleteById(id);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody User item) {
+        return service.login(item);
+    }
+
 }
 

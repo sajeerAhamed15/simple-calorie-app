@@ -27,6 +27,12 @@ public class Entry implements Serializable {
     @Column(name = "food_name", nullable = false, columnDefinition = "varchar(100)")
     private String foodName;
 
+    @Column(name = "entry_date", nullable = false, columnDefinition = "varchar(100)")
+    private String entryDate;
+
+    @Column(name = "entry_time", nullable = false, columnDefinition = "varchar(100)")
+    private String entryTime;
+
     @Column(name = "calorie_value", columnDefinition = "float default 0 NOT NULL")
     private Float calorieValue;
 }

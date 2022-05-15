@@ -89,4 +89,13 @@ public class UserService {
         }
         return list;
     }
+
+    public ResponseEntity<User> login(User item) {
+        Optional<User> existingItemOptional = repository.findByName(item.getName());
+        if (existingItemOptional.isPresent()) {
+            return new ResponseEntity<>(existingItemOptional.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

@@ -27,6 +27,6 @@ public class User implements Serializable {
     @Column(name = "password", nullable = false, columnDefinition = "varchar(100)")
     private String password;
 
-    @Column(name = "daily_calorie_limit", columnDefinition = "float default 0 NOT NULL")
+    @Column(name = "daily_calorie_limit", columnDefinition = "float default 2100 NOT NULL")
     private Float dailyCalorieLimit;
 }

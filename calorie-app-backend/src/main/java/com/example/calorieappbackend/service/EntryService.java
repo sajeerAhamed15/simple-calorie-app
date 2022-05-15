@@ -1,6 +1,7 @@
 package com.example.calorieappbackend.service;
 
 import com.example.calorieappbackend.entity.Entry;
+import com.example.calorieappbackend.entityInterface.EntryAggInterface;
 import com.example.calorieappbackend.repository.EntryRepository;
 import com.example.calorieappbackend.utils.MapperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -75,6 +77,28 @@ public class EntryService {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Entry update: " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
+    public ResponseEntity<List<Entry>> getByUserId(int id, String from, String to) {
+        if (from == null || to == null) {
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+
+        List<Entry> existingItems = repository.findByUserIdAndDates(id, from, to);
+        if (!existingItems.isEmpty()) {
+            return new ResponseEntity<>(existingItems, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+        }
+    }
+
+    public ResponseEntity<List<EntryAggInterface>> getAggByUserId(int id) {
+        List<EntryAggInterface> existingItems = repository.findByUserIdAgg(id);
+        if (!existingItems.isEmpty()) {
+            return new ResponseEntity<>(existingItems, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         }
     }
 }

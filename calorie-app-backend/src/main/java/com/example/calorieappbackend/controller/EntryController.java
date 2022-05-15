@@ -1,6 +1,7 @@
 package com.example.calorieappbackend.controller;
 
 import com.example.calorieappbackend.entity.Entry;
+import com.example.calorieappbackend.entityInterface.EntryAggInterface;
 import com.example.calorieappbackend.service.EntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,16 @@ public class EntryController {
     @GetMapping("/get-by-id/{id}")
     public ResponseEntity<Entry> getById(@PathVariable int id) {
         return service.getById(id);
+    }
+
+    @GetMapping("/get-by-user-id/{id}")
+    public ResponseEntity<List<Entry>> getByUserId(@PathVariable int id, @RequestParam String from, @RequestParam String to) {
+        return service.getByUserId(id, from, to);
+    }
+
+    @GetMapping("/get-agg-entries/{id}")
+    public ResponseEntity<List<EntryAggInterface>> getAggByUserId(@PathVariable int id) {
+        return service.getAggByUserId(id);
     }
 
     @PostMapping("/create")
