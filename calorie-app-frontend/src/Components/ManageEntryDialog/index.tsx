@@ -7,6 +7,8 @@ import {
   Button,
   Grid,
   DialogActions,
+  Typography,
+  LinearProgress,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -14,7 +16,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers";
 import { createEntry, deleteEntry, updateEntry } from "../../Services/api";
-import { formatDate, formatTime, loggedInUser, stringToDate } from "../../Utils/utils";
+import { formatDate, formatTime, loggedInUser, stringToDate, validateInput, validUserCheck } from "../../Utils/utils";
 
 export function ManageEntryDialog(props: {
   onComplete: () => void;
@@ -24,6 +26,9 @@ export function ManageEntryDialog(props: {
   createForm: boolean; // true if "CREATE" form else "UPDATE" or "DELETE" form
   admin: boolean;
 }) {
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [userIdError, setUserIdError] = useState(false);
   const [userId, setUserId] = useState("");
   const [foodName, setFoodName] = useState("");
   const [calories, setCalories] = useState("");
@@ -41,7 +46,7 @@ export function ManageEntryDialog(props: {
           setDate(new Date());
           setTime(new Date());
         } else {
-          setUserId(props.entry.id);
+          setUserId(props.entry.userId);
           setFoodName(props.entry.foodName);
           setCalories(props.entry.calorieValue);
           const _date = stringToDate(`${props.entry.entryDate} ${props.entry.entryTime}`)
@@ -55,39 +60,63 @@ export function ManageEntryDialog(props: {
     }
   }, [ props.open ]);
 
-  const onActionClick = (type: string) => {
+  const showError = () => {
+    setError(true)
+    setTimeout(() => {
+      setError(false)
+    }, 4000)
+  }
+
+  const showUserIdError = () => {
+    setUserIdError(true)
+    setTimeout(() => {
+      setUserIdError(false)
+    }, 4000)
+  }
+
+  const onActionClick = async (type: string) => {
+    setLoading(true)
     if (type === "DELETE") {
       deleteEntry(props.entry.id).then(() => {
+        setLoading(false)
         props.onComplete();
         props.onClose();
       });
     } else {
-      if (
-        userId &&
-        date &&
-        time &&
-        foodName &&
-        calories &&
-        parseFloat(calories) > 0
-      ) {
+      const needExistingUserCheck = userId && props.admin && props.createForm
+      if (needExistingUserCheck) {
+        const existingUser = await validUserCheck(parseInt(userId));
+        if (existingUser) {
+          showUserIdError();
+          setLoading(false);
+          return;
+        }
+      } 
+      
+      if (validateInput(userId, date, time, foodName, calories)) {
         const entry = {
           userId: userId,
           foodName: foodName,
-          entryDate: formatDate(date),
-          entryTime: formatTime(time),
+          entryDate: formatDate(date as Date),
+          entryTime: formatTime(time as Date),
           calorieValue: calories,
         };
         if (type === "UPDATE") {
           updateEntry(entry, props.entry.id).then(() => {
             props.onComplete();
             props.onClose();
+            setLoading(false);
           });
         } else if (type === "CREATE") {
           createEntry(entry).then(() => {
             props.onComplete();
             props.onClose();
+            setLoading(false);
           });
         }
+      } else {
+        showError();
+        setLoading(false);
       }
     }
   };
@@ -103,7 +132,9 @@ export function ManageEntryDialog(props: {
 
       <DialogContent>
         <Grid container spacing={2}>
-          <Grid item xs={12}></Grid>
+          <Grid item xs={12}>
+            {loading && <LinearProgress />}
+          </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -155,6 +186,16 @@ export function ManageEntryDialog(props: {
               />
             </LocalizationProvider>
           </Grid>
+          {error && <Grid item xs={12}>
+            <Typography sx={{ color: '#B00020', float: 'right' }} color="text.secondary" gutterBottom>
+              {`Invalid Input! Please Enter Valid Values`}
+            </Typography>
+          </Grid>}
+          {userIdError && <Grid item xs={12}>
+            <Typography sx={{ color: '#B00020', float: 'right' }} color="text.secondary" gutterBottom>
+              {`User with User ID ${userId} does not exist!`}
+            </Typography>
+          </Grid>}
         </Grid>
       </DialogContent>
       <DialogActions>

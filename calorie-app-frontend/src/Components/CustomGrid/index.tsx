@@ -1,5 +1,6 @@
 
 import { AgGridReact } from "ag-grid-react";
+import { FirstDataRenderedEvent } from "ag-grid-community";
 import { GridButton } from "../GridButton";
 import "ag-grid-enterprise";
 
@@ -8,6 +9,10 @@ import "ag-grid-community/dist/styles/ag-theme-alpine.css";
 import "./styles.scss";
 
 export function CustomGrid({ rowData, columnDefs, filers } : any) {
+  const onFirstDataRendered = (event: FirstDataRenderedEvent) => {
+    event.api.sizeColumnsToFit();
+  };
+
   return (
     <div
       className="ag-theme-alpine custom-grid"
@@ -25,6 +30,7 @@ export function CustomGrid({ rowData, columnDefs, filers } : any) {
         frameworkComponents={{
           gridButton: GridButton,
         }}
+        onFirstDataRendered={onFirstDataRendered}
         enableCellChangeFlash={true}
         rowSelection="multiple"
         rowData={rowData}

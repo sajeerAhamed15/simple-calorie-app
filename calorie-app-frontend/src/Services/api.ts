@@ -24,6 +24,18 @@ export async function userLogin(userName: string) {
   }
 }
 
+export async function checkUserExist(userId: number) {
+  const response = await fetch(`${baseUrl}/user/get-by-id/${userId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": getAuthHeader()
+    }
+  });
+
+  return response.ok;
+}
+
 export async function adminLogin(userName: string) {
   const response = await fetch(`${baseUrl}/admin/login`, {
     method: "POST",
