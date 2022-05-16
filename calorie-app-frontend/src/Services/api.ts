@@ -58,6 +58,21 @@ export async function getEntries(date1: string, date2: string) {
   }
 }
 
+export async function getAllEntries() {
+  const response = await fetch(`${baseUrl}/entry/get-all`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": getAuthHeader()
+    }
+  });
+
+  if (response.ok) {
+    const responseJson = await response.json();
+    return responseJson
+  }
+}
+
 export async function getAggEntries() {
   const userId = loggedInUser().id;
 

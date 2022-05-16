@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import * as React from "react";
 import TextField from "@mui/material/TextField";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -35,37 +36,33 @@ export default function CustomDateRange(props: {
     <div className="data-range">
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Grid container spacing={0}>
-          <Grid item xs={4}>
-            <DatePicker
-              className="grid-item"
-              label="From"
-              value={value1}
-              onChange={(newValue: any) => {
-                setValue1(newValue);
-              }}
-              renderInput={(params: any) => <TextField {...params} />}
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <DatePicker
-              className="grid-item"
-              label="To"
-              value={value2}
-              onChange={(newValue: any) => {
-                setValue2(newValue);
-              }}
-              renderInput={(params: any) => <TextField {...params} />}
-            />
-          </Grid>
-          <Grid item xs={2}>
-            <Button
-              className="grid-item"
-              onClick={search}
-              variant="contained"
-              endIcon={<SearchIcon />}
-            >
-              Search
-            </Button>
+          <Grid item xs={12}>
+            <div className="grid-item">
+              <DatePicker
+                label="From"
+                value={value1}
+                onChange={(newValue: any) => {
+                  setValue1(newValue);
+                }}
+                renderInput={(params: any) => <TextField {...params} />}
+              />
+              <DatePicker
+                label="To"
+                value={value2}
+                onChange={(newValue: any) => {
+                  setValue2(newValue);
+                }}
+                renderInput={(params: any) => <TextField {...params} />}
+              />
+              <Button
+                className="button"
+                onClick={search}
+                variant="contained"
+                endIcon={<SearchIcon />}
+              >
+                Search
+              </Button>
+            </div>
           </Grid>
         </Grid>
       </LocalizationProvider>

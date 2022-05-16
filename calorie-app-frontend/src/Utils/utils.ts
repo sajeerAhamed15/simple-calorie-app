@@ -22,3 +22,7 @@ export function loggedInUser() {
 export function loggedInAdmin() {
   return JSON.parse(localStorage.getItem("admin") as any)
 }
+
+export function logoutAdmin() {
+  localStorage.removeItem('admin')
+}
