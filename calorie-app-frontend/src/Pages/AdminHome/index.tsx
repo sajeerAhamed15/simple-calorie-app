@@ -5,18 +5,21 @@ import { LinearProgress, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 import "./styles.scss";
-import { getAllEntries } from "../../Services/api";
+import { getAllEntries, getReportSummary } from "../../Services/api";
 import { CustomGrid } from "../../Components/CustomGrid";
 import { CustomDialog } from "../../Components/CustomDialog";
-import { loggedInAdmin, logoutAdmin } from "../../Utils/utils";
+import { formatDate, loggedInAdmin, logoutAdmin } from "../../Utils/utils";
 import { useNavigate } from "react-router-dom";
-import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutIcon from "@mui/icons-material/Logout";
+import { CustomCard } from "../../Components/CustomCard";
 
 export function AdminHome() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [entryDialogOpen, setEntryDialogOpen] = useState(false);
   const [entries, setEntries] = useState<any>([]);
+
+  const [reportValue, setReportValue] = useState<any>(null);
 
   const [entriesColumnDef] = useState([
     { field: "id" },
@@ -28,22 +31,30 @@ export function AdminHome() {
     { field: "calorieValue", headerName: "Calories" },
   ]);
 
-
   useEffect(() => {
     if (!loggedInAdmin()) {
-      navigate(`/admin/login`)
+      navigate(`/admin/login`);
     } else {
-      setLoading(true);
       loadEntries();
+      loadReportSummary();
     }
   }, []);
 
   const logout = () => {
     logoutAdmin();
-    navigate(`/admin/login`)
-  }
+    navigate(`/admin/login`);
+  };
+
+  const loadReportSummary = () => {
+    setLoading(true);
+    getReportSummary(formatDate(new Date())).then((data: any) => {
+      setReportValue(data);
+      setLoading(false);
+    });
+  };
 
   const loadEntries = () => {
+    setLoading(true);
     getAllEntries().then((data: any) => {
       setEntries(data);
       setLoading(false);
@@ -56,6 +67,7 @@ export function AdminHome() {
 
   const onNewEntry = () => {
     loadEntries();
+    loadReportSummary();
   };
 
   return (
@@ -103,13 +115,31 @@ export function AdminHome() {
           />
         </Grid>
         <Grid item xs={12}>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+          <Typography
+            sx={{ fontSize: 20, textAlign: "center" }}
+            color="text.secondary"
+            gutterBottom
+          >
             {`Admin Summary`}
           </Typography>
         </Grid>
-        <Grid item xs={12}>
-          
-        </Grid>
+        {reportValue && (
+          <Grid item justifyContent="center" container xs={12} spacing={3}>
+            <Grid item xs={4}>
+              <CustomCard
+                text1="Number of Entries"
+                text2={`${reportValue.numEntriesRecent} in last 7 Days`}
+                text3={`${reportValue.numEntriesPast} in the week before`}
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <CustomCard
+                text1="Average Calorie Intake in Last 7 days"
+                text2={`${reportValue.avgCalories} kCal`}
+              />
+            </Grid>
+          </Grid>
+        )}
       </Grid>
     </div>
   );

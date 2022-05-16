@@ -106,3 +106,17 @@ export async function createEntry(entry: any) {
   }
 }
 
+export async function getReportSummary(today: string) {
+  const response = await fetch(`${baseUrl}/entry/get-report-summary?today=${today}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": getAuthHeader()
+    }
+  });
+
+  if (response.ok) {
+    const responseJson = await response.json();
+    return responseJson
+  }
+}

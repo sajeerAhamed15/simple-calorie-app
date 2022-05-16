@@ -1,0 +1,23 @@
+.custom-card {
+    text-align: center;
+    transition: transform 0.5s, filter 1.5s ease-in-out;
+    transform-origin: center center;
+
+    .title {
+        margin-top: 20px;
+        text-align: center;
+        font-weight: normal;
+        color: #333333;
+        height: 40px;
+    }
+
+    .subtitle {
+        color: #757575;
+        text-align: center;
+    }
+
+    &:hover {
+        transform: scale(1.03);
+        cursor: pointer;
+    }
+}
