@@ -7,13 +7,13 @@ import java.util.Date;
 public class Utils {
 
     public static String getCurrentDate() {
-        SimpleDateFormat formatter= new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat formatter= new SimpleDateFormat("MM-dd-yyyy");
         Date date = new Date(System.currentTimeMillis());
         return formatter.format(date);
     }
 
     public static String getPreviousDate(int days) {
-        SimpleDateFormat formatter= new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat formatter= new SimpleDateFormat("MM-dd-yyyy");
         Date today = new Date(System.currentTimeMillis());
         Date date = addDays(today, days);
         return formatter.format(date);

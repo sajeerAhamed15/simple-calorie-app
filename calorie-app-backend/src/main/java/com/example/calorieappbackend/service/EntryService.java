@@ -2,10 +2,12 @@ package com.example.calorieappbackend.service;
 
 import com.example.calorieappbackend.dtoRespond.EntitySummaryDto;
 import com.example.calorieappbackend.entity.Entry;
+import com.example.calorieappbackend.entity.User;
 import com.example.calorieappbackend.entityInterface.AvgSummaryInterface;
 import com.example.calorieappbackend.entityInterface.EntryAggInterface;
 import com.example.calorieappbackend.entityInterface.EntrySummaryInterface;
 import com.example.calorieappbackend.repository.EntryRepository;
+import com.example.calorieappbackend.repository.UserRepository;
 import com.example.calorieappbackend.utils.MapperUtils;
 import com.example.calorieappbackend.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +30,23 @@ public class EntryService {
     @Autowired
     private EntryRepository repository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     public ResponseEntity<Entry> create(Entry item) {
         try {
-            Entry savedItem = repository.save(item);
-            return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
+            Optional<User> existingItemOptional = userRepository.findById(item.getUserId());
+            if (existingItemOptional.isPresent()) {
+                item.setUserName(existingItemOptional.get().getName());
+                Entry savedItem = repository.save(item);
+                return new ResponseEntity<>(savedItem, HttpStatus.CREATED);
+            } else {
+                logger.log(Level.SEVERE, "Entry create: No User with user id" + item.getUserId());
+                return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+            }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Entry create: " + e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
