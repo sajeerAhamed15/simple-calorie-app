@@ -89,4 +89,13 @@ public class AdminService {
         }
         return list;
     }
+
+    public ResponseEntity<Admin> login(Admin item) {
+        Optional<Admin> existingItemOptional = repository.findByName(item.getName());
+        if (existingItemOptional.isPresent()) {
+            return new ResponseEntity<>(existingItemOptional.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

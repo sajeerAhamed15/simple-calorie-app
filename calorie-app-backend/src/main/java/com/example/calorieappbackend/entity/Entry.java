@@ -24,6 +24,9 @@ public class Entry implements Serializable {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
+    @Column(name = "user_name", nullable = false, columnDefinition = "varchar(100)")
+    private String userName;
+
     @Column(name = "food_name", nullable = false, columnDefinition = "varchar(100)")
     private String foodName;
 

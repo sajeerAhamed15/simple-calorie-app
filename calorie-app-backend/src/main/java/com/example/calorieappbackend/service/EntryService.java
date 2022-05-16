@@ -1,9 +1,13 @@
 package com.example.calorieappbackend.service;
 
+import com.example.calorieappbackend.dtoRespond.EntitySummaryDto;
 import com.example.calorieappbackend.entity.Entry;
+import com.example.calorieappbackend.entityInterface.AvgSummaryInterface;
 import com.example.calorieappbackend.entityInterface.EntryAggInterface;
+import com.example.calorieappbackend.entityInterface.EntrySummaryInterface;
 import com.example.calorieappbackend.repository.EntryRepository;
 import com.example.calorieappbackend.utils.MapperUtils;
+import com.example.calorieappbackend.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -100,5 +104,36 @@ public class EntryService {
         } else {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         }
+    }
+
+    public ResponseEntity<EntitySummaryDto> getReportSummary() {
+        EntitySummaryDto summaryDto = new EntitySummaryDto();
+
+        String today = Utils.getCurrentDate();
+        String lastWeek = Utils.getPreviousDate(-7);
+        String beforeWeek = Utils.getPreviousDate(-14);
+
+        List<EntrySummaryInterface> existingItems = repository.findCountEntries(today, lastWeek);
+        if (!existingItems.isEmpty()) {
+            summaryDto.setNumEntriesRecent(existingItems.get(0).getTotalCount());
+        } else {
+            summaryDto.setNumEntriesRecent(0);
+        }
+
+        List<EntrySummaryInterface> existingItems2 = repository.findCountEntries(lastWeek, beforeWeek);
+        if (!existingItems2.isEmpty()) {
+            summaryDto.setNumEntriesPast(existingItems2.get(0).getTotalCount());
+        } else {
+            summaryDto.setNumEntriesPast(0);
+        }
+
+        List<AvgSummaryInterface> existingItems3 = repository.findAverageCalorie(today, lastWeek);
+        if (!existingItems3.isEmpty()) {
+            summaryDto.setAvgCalories(existingItems3.get(0).getAvgCalorie());
+        } else {
+            summaryDto.setAvgCalories(0f);
+        }
+
+        return new ResponseEntity<>(summaryDto, HttpStatus.OK);
     }
 }

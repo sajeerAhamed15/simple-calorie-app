@@ -1,5 +1,6 @@
 package com.example.calorieappbackend.controller;
 
+import com.example.calorieappbackend.dtoRespond.EntitySummaryDto;
 import com.example.calorieappbackend.entity.Entry;
 import com.example.calorieappbackend.entityInterface.EntryAggInterface;
 import com.example.calorieappbackend.service.EntryService;
@@ -53,5 +54,9 @@ public class EntryController {
         return service.deleteById(id);
     }
 
+    @GetMapping("/get-report-summary")
+    public ResponseEntity<EntitySummaryDto> getReportSummary() {
+        return service.getReportSummary();
+    }
 }
 
