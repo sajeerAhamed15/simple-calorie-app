@@ -8,9 +8,9 @@ import "./styles.scss";
 import CustomDateRange from "../../Components/CustomDataRange";
 import { getEntries, getAggEntries } from "../../Services/api";
 import { CustomGrid } from "../../Components/CustomGrid";
-import { CustomDialog } from "../../Components/CustomDialog";
 import { getCellClassRules, loggedInUser } from "../../Utils/utils";
 import { useNavigate } from "react-router-dom";
+import { ManageEntryDialog } from "../../Components/ManageEntryDialog";
 
 export function Home() {
   const navigate = useNavigate();
@@ -84,9 +84,11 @@ export function Home() {
   return (
     <div className="home">
       {loading && <LinearProgress className="loader" />}
-      <CustomDialog
-        onSave={onNewEntry}
+      <ManageEntryDialog
+        admin={false}
+        onComplete={onNewEntry}
         open={entryDialogOpen}
+        createForm={true}
         onClose={() => setEntryDialogOpen(false)}
       />
       <Grid container spacing={3}>

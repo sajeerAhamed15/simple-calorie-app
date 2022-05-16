@@ -1,9 +1,15 @@
+import moment from "moment";
+
 export function formatDate(d: Date) {
-  return ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + d.getFullYear();
+  return ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "-" + d.getFullYear();
 }
 
 export function formatTime(d: Date) {
   return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+}
+
+export function stringToDate(str: string) {
+  return moment(str, 'MM-DD-YYYY HH:mm').toDate()
 }
 
 export function getCellClassRules() {

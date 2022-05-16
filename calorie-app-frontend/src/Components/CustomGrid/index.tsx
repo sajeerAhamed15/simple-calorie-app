@@ -1,5 +1,6 @@
 
 import { AgGridReact } from "ag-grid-react";
+import { GridButton } from "../GridButton";
 import "ag-grid-enterprise";
 
 import "ag-grid-community/dist/styles/ag-grid.css";
@@ -20,6 +21,9 @@ export function CustomGrid({ rowData, columnDefs, filers } : any) {
           headerCheckboxSelectionFilteredOnly: true,
           editable: false,
           sortable: true,
+        }}
+        frameworkComponents={{
+          gridButton: GridButton,
         }}
         enableCellChangeFlash={true}
         rowSelection="multiple"

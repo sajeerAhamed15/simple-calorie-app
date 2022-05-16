@@ -106,6 +106,34 @@ export async function createEntry(entry: any) {
   }
 }
 
+export async function updateEntry(entry: any, id: number) {
+  const response = await fetch(`${baseUrl}/entry/update/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": getAuthHeader()
+    },
+    body: JSON.stringify(entry),
+  });
+
+  if (response.ok) {
+    const responseJson = await response.json();
+    return responseJson
+  }
+}
+
+export async function deleteEntry(id: number) {
+  const response = await fetch(`${baseUrl}/entry/delete/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": getAuthHeader()
+    }
+  });
+
+  return response.ok;
+}
+
 export async function getReportSummary(today: string) {
   const response = await fetch(`${baseUrl}/entry/get-report-summary?today=${today}`, {
     method: "GET",

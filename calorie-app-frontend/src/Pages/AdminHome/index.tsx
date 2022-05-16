@@ -7,7 +7,7 @@ import AddIcon from "@mui/icons-material/Add";
 import "./styles.scss";
 import { getAllEntries, getReportSummary } from "../../Services/api";
 import { CustomGrid } from "../../Components/CustomGrid";
-import { CustomDialog } from "../../Components/CustomDialog";
+import { ManageEntryDialog } from "../../Components/ManageEntryDialog";
 import { formatDate, loggedInAdmin, logoutAdmin } from "../../Utils/utils";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -18,7 +18,8 @@ export function AdminHome() {
   const [loading, setLoading] = useState(false);
   const [entryDialogOpen, setEntryDialogOpen] = useState(false);
   const [entries, setEntries] = useState<any>([]);
-
+  const [clickedEntry, setClickedEntry] = useState<any>(null);
+  const [isCreateForm, setIsCreateForm] = useState(false);
   const [reportValue, setReportValue] = useState<any>(null);
 
   const [entriesColumnDef] = useState([
@@ -29,6 +30,18 @@ export function AdminHome() {
     { field: "entryTime", headerName: "Date" },
     { field: "foodName", headerName: "Food" },
     { field: "calorieValue", headerName: "Calories" },
+    {
+      field: "edit",
+      headerName: "Edit",
+      cellRenderer: "gridButton",
+      cellRendererParams: {
+        clicked: function (field: any) {
+          setClickedEntry(field);
+          setIsCreateForm(false);
+          setEntryDialogOpen(true);
+        }
+      },
+    }
   ]);
 
   useEffect(() => {
@@ -62,6 +75,7 @@ export function AdminHome() {
   };
 
   const addEntry = () => {
+    setIsCreateForm(true);
     setEntryDialogOpen(true);
   };
 
@@ -73,9 +87,12 @@ export function AdminHome() {
   return (
     <div className="admin-home">
       {loading && <LinearProgress className="loader" />}
-      <CustomDialog
-        onSave={onNewEntry}
+      <ManageEntryDialog
+        admin={true}
+        onComplete={onNewEntry}
         open={entryDialogOpen}
+        createForm={isCreateForm}
+        entry={clickedEntry}
         onClose={() => setEntryDialogOpen(false)}
       />
       <Grid container spacing={3}>
