@@ -107,10 +107,11 @@ export function ManageEntryDialog(props: {
           <Grid item xs={12}>
             <TextField
               fullWidth
+              type="number"
               label={"User ID"}
               disabled={!props.admin || (props.admin && !props.createForm)}
               value={userId}
-              onChange={(e) => setUserId(e.target.value)}
+              onChange={(e) => setUserId(parseInt(e.target.value) as any)}
             />
           </Grid>
           <Grid item xs={12}>
