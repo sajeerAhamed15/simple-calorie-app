@@ -53,6 +53,7 @@ export function ManageEntryDialog(props: {
   const [date, setDate] = useState<Date | null>(new Date());
   const [time, setTime] = useState<Date | null>(new Date());
   const [autoComplete, setAutoComplete] = useState<any>([]);
+  const [disableSubmit, setDisableSubmit] = useState(true);
 
   useEffect(() => {
     const user = loggedInUser();
@@ -141,6 +142,18 @@ export function ManageEntryDialog(props: {
     }
   };
 
+  useEffect(() => {
+    validateForm()
+  }, [userId, date, time, foodName, calories])
+
+  const validateForm = () => {
+    if (validateInput(userId, date, time, foodName, calories)) {
+      setDisableSubmit(false);
+    } else {
+      setDisableSubmit(true);
+    }
+  };
+
   const fetchAutoComplete = (_foodName: string) => {
     console.log("Debounced");
     getAutoCompleteFromNutritionix(_foodName).then((data: any) => {
@@ -151,16 +164,16 @@ export function ManageEntryDialog(props: {
         const brandedFoods =
           data.branded && data.branded.map((i: any) => i.food_name);
         setAutoComplete([...commonFoods, ...brandedFoods]);
-        setLoadingAutoComplete(false)
+        setLoadingAutoComplete(false);
       }
     });
   };
 
-  const debouncedFunction = useCallback(debounce(fetchAutoComplete, 2000), []);
+  const debouncedFunction = useCallback(debounce(fetchAutoComplete, 1000), []);
 
   const handleFoodOnChange = (e: any) => {
     setFoodName(e.target.value);
-    setLoadingAutoComplete(true)
+    setLoadingAutoComplete(true);
     debouncedFunction(e.target.value);
   };
 
@@ -172,6 +185,10 @@ export function ManageEntryDialog(props: {
       }
     });
   };
+
+  const handleAutoCompleteChange = (event: any, newValue: any) => {
+    setFoodName(newValue);
+  }
 
   return (
     <Dialog
@@ -194,27 +211,32 @@ export function ManageEntryDialog(props: {
               label={"User ID"}
               disabled={!props.admin || (props.admin && !props.createForm)}
               value={userId}
-              onChange={(e) => setUserId(parseInt(e.target.value) as any)}
+              onChange={(e) => {
+                setUserId(parseInt(e.target.value) as any);
+              }}
             />
           </Grid>
           <Grid item xs={12}>
             <Autocomplete
               freeSolo
+              value={foodName}
               options={autoComplete}
+              onChange={handleAutoCompleteChange}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   fullWidth
                   helperText={"Eg: 1 Cup of Ice cream, Fish Stick"}
                   label={"What did you eat?"}
-                  value={foodName}
                   onChange={handleFoodOnChange}
                   onBlur={() => handleFoodOnBlur()}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
                       <React.Fragment>
-                        {loadingAutoComplete ? <CircularProgress color="inherit" size={20} /> : null}
+                        {loadingAutoComplete ? (
+                          <CircularProgress color="inherit" size={20} />
+                        ) : null}
                         {params.InputProps.endAdornment}
                       </React.Fragment>
                     ),
@@ -222,14 +244,6 @@ export function ManageEntryDialog(props: {
                 />
               )}
             />
-            {/* <TextField
-              fullWidth
-              helperText={"Eg: 1 Cup of Ice cream"}
-              label={"What did you eat?"}
-              value={foodName}
-              onChange={handleFoodOnChange}
-              onBlur={() => handleFoodOnBlur()}
-            /> */}
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -237,7 +251,9 @@ export function ManageEntryDialog(props: {
               fullWidth
               label={"Amount of Calories (Kcal)"}
               value={calories}
-              onChange={(e) => setCalories(e.target.value)}
+              onChange={(e) => {
+                setCalories(e.target.value);
+              }}
             />
           </Grid>
           <Grid item xs={6}>
@@ -294,7 +310,12 @@ export function ManageEntryDialog(props: {
           <Button onClick={() => onActionClick("DELETE")}>Delete</Button>
         )}
         {props.createForm ? (
-          <Button onClick={() => onActionClick("CREATE")}>Save</Button>
+          <Button
+            disabled={disableSubmit}
+            onClick={() => onActionClick("CREATE")}
+          >
+            Save
+          </Button>
         ) : (
           <Button onClick={() => onActionClick("UPDATE")}>Update</Button>
         )}
