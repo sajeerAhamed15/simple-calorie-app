@@ -22,7 +22,7 @@ public interface EntryRepository extends JpaRepository<Entry, Integer>, JpaSpeci
             "e.entry_date >= :from AND " +
             "e.entry_date <= :to AND " +
             "e.user_id = :id " +
-            "ORDER BY e.id DESC " +
+            "ORDER BY e.entry_date DESC " +
             "LIMIT 500",
             nativeQuery = true)
     List<Entry> findByUserIdAndDates(@Param("id") Integer id, @Param("from") String from,@Param("to") String to);
@@ -36,7 +36,7 @@ public interface EntryRepository extends JpaRepository<Entry, Integer>, JpaSpeci
             "WHERE " +
             "e.user_id = :id " +
             "GROUP BY e.entry_date " +
-            "ORDER BY e.id DESC " +
+            "ORDER BY e.entry_date DESC " +
             "LIMIT 500",
             nativeQuery = true)
     List<EntryAggInterface> findByUserIdAgg(int id);
