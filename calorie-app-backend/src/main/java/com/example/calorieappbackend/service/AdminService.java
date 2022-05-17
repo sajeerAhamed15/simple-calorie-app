@@ -91,7 +91,7 @@ public class AdminService {
     }
 
     public ResponseEntity<Admin> login(Admin item) {
-        Optional<Admin> existingItemOptional = repository.findByName(item.getName());
+        Optional<Admin> existingItemOptional = repository.findByNameAndPassword(item.getName(), item.getPassword());
         if (existingItemOptional.isPresent()) {
             return new ResponseEntity<>(existingItemOptional.get(), HttpStatus.OK);
         } else {

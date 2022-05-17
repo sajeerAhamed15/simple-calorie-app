@@ -42,7 +42,7 @@ public class AdminController {
         return service.deleteById(id);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/logged-in-user")
     public ResponseEntity<Admin> login(@RequestBody Admin item) {
         return service.login(item);
     }

@@ -1,6 +1,7 @@
 package com.example.calorieappbackend.security;
 
 import com.example.calorieappbackend.service.AuthService;
+import com.example.calorieappbackend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,9 @@ public class RequestFilter extends OncePerRequestFilter {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
@@ -28,20 +32,19 @@ public class RequestFilter extends OncePerRequestFilter {
         final String authorizationHeader = request.getHeader("Authorization");
 
         String username = null;
-        String token = null;
+        String jwt = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String[] values = authorizationHeader.split(" ");
-            username = values[1];
-            token = values[2];
+            jwt = authorizationHeader.substring(7);
+            username = jwtUtil.extractUsername(jwt);
         }
 
 
-        if (username != null && token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = authService.loadUserByUsername(username);
 
-            if (validateToken(token, userDetails)) {
+            if (jwtUtil.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken
@@ -51,10 +54,4 @@ public class RequestFilter extends OncePerRequestFilter {
         }
         chain.doFilter(request, response);
     }
-
-    private boolean validateToken(String token, UserDetails userDetails) {
-        final String password = userDetails.getPassword();
-        return token.equals(password);
-    }
-
 }

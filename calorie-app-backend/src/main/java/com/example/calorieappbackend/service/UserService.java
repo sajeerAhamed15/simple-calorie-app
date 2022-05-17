@@ -91,7 +91,7 @@ public class UserService {
     }
 
     public ResponseEntity<User> login(User item) {
-        Optional<User> existingItemOptional = repository.findByName(item.getName());
+        Optional<User> existingItemOptional = repository.findByNameAndPassword(item.getName(), item.getPassword());
         if (existingItemOptional.isPresent()) {
             return new ResponseEntity<>(existingItemOptional.get(), HttpStatus.OK);
         } else {
