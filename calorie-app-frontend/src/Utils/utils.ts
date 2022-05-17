@@ -22,12 +22,17 @@ export function stringToDate(str: string) {
 }
 
 export function getCellClassRules() {
+  if (!loggedInUser()) return
   const calorieLimit = loggedInUser().dailyCalorieLimit as number;
   return {
     "rag-green": `x < ${calorieLimit - 100}`,
     "rag-amber": `x >= ${calorieLimit - 100} && x < ${calorieLimit + 100}`,
     "rag-red": `x >= ${calorieLimit + 100}`,
   };
+}
+
+export function getJwt() {
+  return JSON.parse(localStorage.getItem("token") as any);
 }
 
 export function loggedInUser() {
@@ -40,6 +45,7 @@ export function loggedInAdmin() {
 
 export function logoutAdmin() {
   localStorage.removeItem("admin");
+  localStorage.removeItem("token");
 }
 
 export function validateInput(

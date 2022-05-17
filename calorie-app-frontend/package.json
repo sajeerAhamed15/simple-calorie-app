@@ -16,6 +16,7 @@
     "ag-grid-community": "^27.0.1",
     "ag-grid-enterprise": "^27.0.1",
     "ag-grid-react": "^27.0.1",
+    "lodash": "^4.17.21",
     "moment": "^2.29.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
@@ -51,6 +52,7 @@
     ]
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
     "@types/react": "^18.0.9",
     "@types/react-date-range": "^1.4.3",
     "@types/react-dom": "^18.0.3",

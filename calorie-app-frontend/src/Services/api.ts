@@ -1,20 +1,24 @@
-import { loggedInUser } from "../Utils/utils";
+import { getJwt, loggedInUser } from "../Utils/utils";
 
 const baseUrl = `http://localhost:9191/v1`;
+const nutritionixUrl = `https://trackapi.nutritionix.com/v2`;
+const nutritionixAppkey = `69defc4e806c29ecd199447885a8e5b9`;
+const nutritionixAppId = `79d91b32`;
 
 export function getAuthHeader() {
-  const user = loggedInUser()
-  return `Bearer ${user.name} ${user.password}`
+  const jwt = getJwt().jwt;
+  return `Bearer ${jwt}`
 }
 
-export async function userLogin(userName: string) {
-  const response = await fetch(`${baseUrl}/user/login`, {
+export async function userLogin(userName: string, password: string) {
+  const response = await fetch(`${baseUrl}/authenticate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      name: userName
+      username: userName,
+      password: password
     }),
   });
 
@@ -36,14 +40,15 @@ export async function checkUserExist(userId: number) {
   return response.ok;
 }
 
-export async function adminLogin(userName: string) {
-  const response = await fetch(`${baseUrl}/admin/login`, {
+export async function adminLogin(userName: string, password: string) {
+  const response = await fetch(`${baseUrl}/authenticate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      name: userName
+      username: userName,
+      password: password
     }),
   });
 
@@ -152,6 +157,81 @@ export async function getReportSummary(today: string) {
     headers: {
       "Content-Type": "application/json",
       "Authorization": getAuthHeader()
+    }
+  });
+
+  if (response.ok) {
+    const responseJson = await response.json();
+    return responseJson
+  }
+}
+
+export async function getAdmin(userName: string, password: string) {
+  const response = await fetch(`${baseUrl}/admin/logged-in-user`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": getAuthHeader()
+    },
+    body: JSON.stringify({
+      name: userName,
+      password: password
+    }),
+  });
+
+  if (response.ok) {
+    const responseJson = await response.json();
+    return responseJson
+  }
+}
+
+export async function getUser(userName: string, password: string) {
+  const response = await fetch(`${baseUrl}/user/logged-in-user`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": getAuthHeader()
+    },
+    body: JSON.stringify({
+      name: userName,
+      password: password
+    }),
+  });
+
+  if (response.ok) {
+    const responseJson = await response.json();
+    return responseJson
+  }
+}
+
+export async function getCalorieFromNutritionix(query: string) {
+  const response = await fetch(`${nutritionixUrl}/natural/nutrients`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-app-id": nutritionixAppId,
+      "x-app-key": nutritionixAppkey,
+      "x-remote-user-id": "0"
+    },
+    body: JSON.stringify({
+      query: query
+    }),
+  });
+
+  if (response.ok) {
+    const responseJson = await response.json();
+    return responseJson
+  }
+}
+
+export async function getAutoCompleteFromNutritionix(query: string) {
+  const response = await fetch(`${nutritionixUrl}/search/instant?query=${query}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "x-app-id": nutritionixAppId,
+      "x-app-key": nutritionixAppkey,
+      "x-remote-user-id": "0"
     }
   });
 

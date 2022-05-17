@@ -9,14 +9,31 @@ import {
   DialogActions,
   Typography,
   LinearProgress,
+  Autocomplete,
+  CircularProgress,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { debounce } from "lodash";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers";
-import { createEntry, deleteEntry, updateEntry } from "../../Services/api";
-import { formatDate, formatTime, loggedInUser, stringToDate, validateInput, validUserCheck } from "../../Utils/utils";
+import {
+  createEntry,
+  deleteEntry,
+  getAutoCompleteFromNutritionix,
+  getCalorieFromNutritionix,
+  updateEntry,
+} from "../../Services/api";
+import {
+  formatDate,
+  formatTime,
+  loggedInUser,
+  stringToDate,
+  validateInput,
+  validUserCheck,
+} from "../../Utils/utils";
+import React from "react";
 
 export function ManageEntryDialog(props: {
   onComplete: () => void;
@@ -28,12 +45,14 @@ export function ManageEntryDialog(props: {
 }) {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingAutoComplete, setLoadingAutoComplete] = useState(false);
   const [userIdError, setUserIdError] = useState(false);
   const [userId, setUserId] = useState("");
   const [foodName, setFoodName] = useState("");
   const [calories, setCalories] = useState("");
   const [date, setDate] = useState<Date | null>(new Date());
   const [time, setTime] = useState<Date | null>(new Date());
+  const [autoComplete, setAutoComplete] = useState<any>([]);
 
   useEffect(() => {
     const user = loggedInUser();
@@ -49,41 +68,42 @@ export function ManageEntryDialog(props: {
           setUserId(props.entry.userId);
           setFoodName(props.entry.foodName);
           setCalories(props.entry.calorieValue);
-          const _date = stringToDate(`${props.entry.entryDate} ${props.entry.entryTime}`)
+          const _date = stringToDate(
+            `${props.entry.entryDate} ${props.entry.entryTime}`
+          );
           setDate(_date);
           setTime(_date);
         }
       } else {
         setUserId(user.id);
       }
-      
     }
-  }, [ props.open ]);
+  }, [props.open]);
 
   const showError = () => {
-    setError(true)
+    setError(true);
     setTimeout(() => {
-      setError(false)
-    }, 4000)
-  }
+      setError(false);
+    }, 4000);
+  };
 
   const showUserIdError = () => {
-    setUserIdError(true)
+    setUserIdError(true);
     setTimeout(() => {
-      setUserIdError(false)
-    }, 4000)
-  }
+      setUserIdError(false);
+    }, 4000);
+  };
 
   const onActionClick = async (type: string) => {
-    setLoading(true)
+    setLoading(true);
     if (type === "DELETE") {
       deleteEntry(props.entry.id).then(() => {
-        setLoading(false)
+        setLoading(false);
         props.onComplete();
         props.onClose();
       });
     } else {
-      const needExistingUserCheck = userId && props.admin && props.createForm
+      const needExistingUserCheck = userId && props.admin && props.createForm;
       if (needExistingUserCheck) {
         const existingUser = await validUserCheck(parseInt(userId));
         if (existingUser) {
@@ -91,8 +111,8 @@ export function ManageEntryDialog(props: {
           setLoading(false);
           return;
         }
-      } 
-      
+      }
+
       if (validateInput(userId, date, time, foodName, calories)) {
         const entry = {
           userId: userId,
@@ -121,6 +141,38 @@ export function ManageEntryDialog(props: {
     }
   };
 
+  const fetchAutoComplete = (_foodName: string) => {
+    console.log("Debounced");
+    getAutoCompleteFromNutritionix(_foodName).then((data: any) => {
+      console.log(data);
+      if (data && data.common) {
+        const commonFoods =
+          data.common && data.common.map((i: any) => i.food_name);
+        const brandedFoods =
+          data.branded && data.branded.map((i: any) => i.food_name);
+        setAutoComplete([...commonFoods, ...brandedFoods]);
+        setLoadingAutoComplete(false)
+      }
+    });
+  };
+
+  const debouncedFunction = useCallback(debounce(fetchAutoComplete, 2000), []);
+
+  const handleFoodOnChange = (e: any) => {
+    setFoodName(e.target.value);
+    setLoadingAutoComplete(true)
+    debouncedFunction(e.target.value);
+  };
+
+  const handleFoodOnBlur = () => {
+    getCalorieFromNutritionix(foodName).then((data: any) => {
+      if (data && data.foods) {
+        const _calories = data.foods[0].nf_calories;
+        setCalories(_calories);
+      }
+    });
+  };
+
   return (
     <Dialog
       open={props.open}
@@ -146,12 +198,38 @@ export function ManageEntryDialog(props: {
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label={"Name of the Food"}
-              value={foodName}
-              onChange={(e) => setFoodName(e.target.value)}
+            <Autocomplete
+              freeSolo
+              options={autoComplete}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  fullWidth
+                  helperText={"Eg: 1 Cup of Ice cream, Fish Stick"}
+                  label={"What did you eat?"}
+                  value={foodName}
+                  onChange={handleFoodOnChange}
+                  onBlur={() => handleFoodOnBlur()}
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <React.Fragment>
+                        {loadingAutoComplete ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              )}
             />
+            {/* <TextField
+              fullWidth
+              helperText={"Eg: 1 Cup of Ice cream"}
+              label={"What did you eat?"}
+              value={foodName}
+              onChange={handleFoodOnChange}
+              onBlur={() => handleFoodOnBlur()}
+            /> */}
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -186,16 +264,28 @@ export function ManageEntryDialog(props: {
               />
             </LocalizationProvider>
           </Grid>
-          {error && <Grid item xs={12}>
-            <Typography sx={{ color: '#B00020', float: 'right' }} color="text.secondary" gutterBottom>
-              {`Invalid Input! Please Enter Valid Values`}
-            </Typography>
-          </Grid>}
-          {userIdError && <Grid item xs={12}>
-            <Typography sx={{ color: '#B00020', float: 'right' }} color="text.secondary" gutterBottom>
-              {`User with User ID ${userId} does not exist!`}
-            </Typography>
-          </Grid>}
+          {error && (
+            <Grid item xs={12}>
+              <Typography
+                sx={{ color: "#B00020", float: "right" }}
+                color="text.secondary"
+                gutterBottom
+              >
+                {`Invalid Input! Please Enter Valid Values`}
+              </Typography>
+            </Grid>
+          )}
+          {userIdError && (
+            <Grid item xs={12}>
+              <Typography
+                sx={{ color: "#B00020", float: "right" }}
+                color="text.secondary"
+                gutterBottom
+              >
+                {`User with User ID ${userId} does not exist!`}
+              </Typography>
+            </Grid>
+          )}
         </Grid>
       </DialogContent>
       <DialogActions>

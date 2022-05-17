@@ -46,7 +46,7 @@ export function AdminHome() {
 
   useEffect(() => {
     if (!loggedInAdmin()) {
-      navigate(`/admin/login`);
+      navigate(`/`);
     } else {
       loadEntries();
       loadReportSummary();

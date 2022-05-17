@@ -20,6 +20,7 @@ export function Home() {
   const [aggEntries, setAggEntries] = useState<any>([]);
   const [date1, setDate1] = useState<string | null>(null);
   const [date2, setDate2] = useState<string | null>(null);
+  const [dailyThreshold, setDailyThreshold] = useState<any>(null);
 
   const [entriesColumnDef] = useState([
     { field: "id" },
@@ -43,6 +44,7 @@ export function Home() {
       navigate(`/login`)
     } else {
       setLoading(true);
+      setDailyThreshold(loggedInUser().dailyCalorieLimit as number)
       loadAggEntries();
     }
   }, []);
@@ -79,7 +81,7 @@ export function Home() {
     loadAggEntries();
   };
 
-  const dailyThreshold = loggedInUser().dailyCalorieLimit as number;
+  
 
   return (
     <div className="home">
