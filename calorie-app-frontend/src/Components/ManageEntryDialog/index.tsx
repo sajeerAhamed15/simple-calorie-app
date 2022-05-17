@@ -107,7 +107,7 @@ export function ManageEntryDialog(props: {
       const needExistingUserCheck = userId && props.admin && props.createForm;
       if (needExistingUserCheck) {
         const existingUser = await validUserCheck(parseInt(userId));
-        if (existingUser) {
+        if (!existingUser) {
           showUserIdError();
           setLoading(false);
           return;
